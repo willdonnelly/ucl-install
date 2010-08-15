@@ -1,0 +1,79 @@
+UCL Package Guide
+=================
+
+A package consists of a single gzipped tar archive. In the root of this
+archive, there is required to be a file named 'MANIFEST'. This file
+describes the contents of the package.
+
+The Manifest File
+-----------------
+
+The manifest file will be parsed as scheme data. It may contain multiple
+datums, but only the first one will be acted upon. The basic form of the
+manifest structure is
+
+> (package <package-name> (<version-numbers>...)
+>   <clauses>...)
+
+The package name is expected to be a single symbol, and the version is
+a list of integers, most significant version place first. The clauses
+each consist of
+
+> (<clause-name> <additional-data>...)
+
+
+### An Example
+
+It's easiest to understand the package manifest by example:
+
+> (package foobar-baz (0 1)
+>   (synopsis "A Very Short Description")
+>   (description "A longer, one or two-paragraph description \
+>                 of what the library is and why people should \
+>                 want to use it")
+>   (category "Examples" "More Categories")
+>
+>   (author "John Doe" "Someone Else")
+>   (email "john.doe@example.com")
+>
+>   (license BSD3)
+>   (license-file "LICENSE")
+>
+>   (code "foobar.sls" "foobar/*.sls")
+>
+>   (depends foo bar)
+>
+>   (schemes ikarus mosh ypsilon plt larceny))
+
+### Important Clauses
+
+It is recommended that you include as many of these clauses as make
+sense for your project, and that you follow these guidelines if you
+include them, so that tools can be written to operate using these
+bits of data.
+
+* synopsis - A one-line summary of the library's function
+* description - A paragraph or two of explanatory text
+* category - Some short strings describing the niche the package
+             fills
+* author - One or more strings holding the name of the author(s)
+           of the package
+* email - Strings containing email contact information for the
+          current package maintainer(s)
+* license - A short symbol describing the license (BSD3/GPL/MIT/LGPL/etc)
+* license-file - The name of the file in the package (if any) which
+                 contains the full license text
+* code - A list of globs describing which files in the package should be
+         installed as library source code
+* depends - A list of dependencies of the package. A package dependency
+            can be specified either as 'foobar' or as '(package foobar)'
+            The latter form is provided to allow the addition of other
+            dependency types, e.g. '(executable gcc)'
+* schemes - A list of which Scheme implementations the package supports
+
+Extensibility
+-------------
+
+The entire format has been designed for maximum extensibility, by allowing
+the introduction of new clause and dependency types without causing the
+new manifest data to be invalid in older package managers.
