@@ -1,6 +1,6 @@
-;!r6rs
-;(library (ucl install)
-;  (export ucl-update ucl-install ucl-uninstall)
+!r6rs
+(library (ucl install)
+  (export ucl-update ucl-install ucl-uninstall)
   (import (rnrs)
     (ucl prelude)
     (ucl filesystem)
@@ -68,8 +68,12 @@
     (error 'ucl-uninstall (print "package '%' is not installed\n" pkgname)))
   (for ((rdep (find-rdeps pkgname)))
     (display (print "'%' depends on '%'\n" rdep pkgname))
+    ;; avoid recursive issues, however unlikely they are
     (unless (equal? rdep pkgname)
-      (ucl-uninstall rdep)))
+      ;; it could have been removed when we
+      ;; uninstalled a prior rdep
+      (when (package-installed? rdep)
+        (ucl-uninstall rdep))))
   (display (print "removing '%'\n" pkgname))
   (let ((data (read-file-data (meta-file pkgname))))
     (for ((file (cdr (assoc 'files data))))
@@ -86,5 +90,4 @@
 (define (depends-on dep pkgname)
   (define data (read-file-data (meta-file pkgname)))
   (member dep (cdr (assoc 'depends data))))
-
-;)
+)

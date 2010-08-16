@@ -1,6 +1,8 @@
 #!r6rs
 (library (ucl install paths)
-  (export ucl-servers ucl-cache ucl-files meta-file pkgs-file code-file)
+  (export ucl-servers ucl-cache ucl-files
+          meta-file pkgs-file code-file
+          cache-file cache-idxs)
   (import (rnrs) (ucl prelude) (ucl environment))
 
 (define ucl-servers (break-string #\space (getenv "UCL_SERVERS")))
@@ -10,5 +12,8 @@
 (define (meta-file pkg) (print "%/.meta/%.meta" ucl-files pkg))
 (define (pkgs-file) (print "%/.meta/packages-installed" ucl-files))
 (define (code-file file) (string-append ucl-files "/" file))
+
+(define (cache-file f) (string-append ucl-cache "/" f))
+(define (cache-idxs) (string-append ucl-cache "/.packages"))
 
 )
