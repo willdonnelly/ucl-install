@@ -20,6 +20,6 @@
 
 (code "ucl/install.sls" "ucl/install/*.sls")
 
-(depends ucl-prelude ucl-process ucl-environment)
+(depends ucl-prelude ucl-process ucl-environment ucl-filesystem)
 
 (schemes ikarus mosh ypsilon plt larceny)
