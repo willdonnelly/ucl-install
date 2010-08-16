@@ -1,23 +1,25 @@
-(package ucl-install (0 1)
-  (synopsis "Basic UCL Package Manager")
-  (description "A very basic package manager consisting of a \
-                single library with the ability to install and \
-                uninstall packages. Capable of installing packages \
-                from repositories and from files, and allows a \
-                specific package version to be selected, but does \
-                only the most basic dependency handling during \
-                installation, and has no user interface other \
-                than the 'UCL-INSTALL' and 'UCL-UNINSTALL' functions.")
-  (category "UCL")
+(package ucl-install)
+(version 0 1)
+(category "UCL")
 
-  (author "Will Donnelly")
-  (email "wgd@willdonnelly.net")
+(synopsis "Basic UCL Package Manager")
+(description "A very basic package manager consisting of a \
+              single library with the ability to install and \
+              uninstall packages. Capable of installing packages \
+              from repositories and from files, and allows a \
+              specific package version to be selected, but does \
+              only the most basic dependency handling during \
+              installation, and has no user interface other \
+              than the 'UCL-INSTALL' and 'UCL-UNINSTALL' functions.")
 
-  (license BSD3)
-  (license-file "LICENSE")
+(author "Will Donnelly")
+(email "wgd@willdonnelly.net")
 
-  (code "ucl/install.sls" "ucl/install/*.sls")
+(license BSD3)
+(license-file "LICENSE")
 
-  (depends ucl-process ucl-prelude ucl-environment)
+(code "ucl/install.sls" "ucl/install/*.sls")
 
-  (schemes ikarus mosh ypsilon plt larceny))
+(depends ucl-prelude ucl-process ucl-environment)
+
+(schemes ikarus mosh ypsilon plt larceny)
