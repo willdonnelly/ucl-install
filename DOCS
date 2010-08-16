@@ -1,0 +1,165 @@
+UCL-Install User Guide
+======================
+
+UCL-Install provides three functions to the user: 'ucl-update',
+'ucl-install', and 'ucl-uninstall'. The 'ucl-update' function
+
+UCL-UPDATE
+----------
+
+Takes no arguments and updates the local cache of repository
+package indices.
+
+UCL-INSTALL
+-----------
+
+Takes a single argument specifying the package to install. If this
+argument is a string, it will be treated as a local path to a package
+file. If it is a list, the first element should be the package name
+and the latter should explicitly identify a version. If it is a symbol,
+the most recently uploaded version of the package will be installed.
+
+UCL-UNINSTALL
+-------------
+
+Takes a single argument, a symbol naming the package to be removed.
+Recursively removes any packages depending on a package to be
+removed.
+
+Currently does not remove any orphaned dependencies, but the information
+exists to do that, so it may be added as an option later on.
+
+
+
+UCL Package Format
+==================
+
+A package consists of a single gzipped tar archive. In the root of this
+archive, there is required to be a file named 'MANIFEST'. This file
+describes the contents of the package.
+
+The Manifest File
+-----------------
+
+The manifest file will contain a sequence of pairs, and will be parsed
+essentially as an association list, so only the first clause of a given
+type will be acted upon.
+
+### An Example
+
+It's easiest to understand the package manifest by example:
+
+> (package foobar-baz)
+> (version 0 1)
+> (category "Examples" "More Categories")
+>
+> (synopsis "A Very Short Description")
+> (description "A longer, one or two-paragraph description \
+>               of what the library is and why people should \
+>               want to use it")
+>
+> (author "John Doe" "Someone Else")
+> (email "john.doe@example.com")
+>
+> (license BSD3)
+> (license-file "LICENSE")
+>
+> (code "foobar.sls" "foobar/*.sls")
+>
+> (depends foo bar)
+>
+> (schemes ikarus mosh ypsilon plt larceny))
+
+### Required Clauses
+
+* package - A single symbol naming the package
+* version - A sequence of integers describing the version
+
+### Important Clauses
+
+It is recommended that you include as many of these clauses as make
+sense for your project, and that you follow these guidelines if you
+include them, so that tools can be written to operate using these
+bits of data.
+
+* category - Some short strings describing the niche the package fills
+* synopsis - A one-line summary of the library's function
+* description - A paragraph or two of explanatory text
+* author - One or more strings holding the name of the author(s) of the package
+* email - Strings containing email contact information for the current package
+          maintainer(s)
+* license - A short symbol describing the license (BSD3/GPL/MIT/LGPL/etc)
+* license-file - The name of the file in the package (if any) which contains the
+                 full license text
+* code - A list of globs describing which files in the package should be
+         installed as library source code
+* depends - A list of dependencies of the package. A package dependency can be
+            specified either as 'foobar' or as '(package foobar)'. The latter
+            form is provided to allow the addition of other dependency types,
+            e.g. '(executable gcc)'
+* schemes - A list of which Scheme implementations the package supports
+
+Extensibility
+-------------
+
+The entire format has been designed for maximum extensibility, by allowing
+the introduction of new clause and dependency types without causing the
+new manifest data to be invalid in older package managers.
+
+
+
+
+UCL Package Repositories
+========================
+
+The entire system is designed with an eye towards making the repositories
+as simple and robust as they possibly can be. To that end, the repository
+is nothing more than a file server over HTTP. It consists of a single
+directory containing package files and a list of all available packages.
+
+The package list is named '.packages.gz', and is a list of available package
+specifiers, one per line, compressed by gzip. The package specifier is a
+pair of '(name . version)', which ends up looking like '(foobar 1 3 5)' as
+the version is a list of numbers.
+
+Each package file is stored following the pattern <name>-<version>.tar.gz,
+like 'foobar-1.3.tar.gz' or 'baz-8.1.23.tar.gz'. Versions must consist
+entirely of numbers, at least for the moment.
+
+
+
+
+Directory Structure
+===================
+
+There are two main directories to be concerned with, the package cache
+and the source tree. The package cache is where packages are downloaded
+to before installation, and is used to avoid redownloading packages when
+switching installed versions repeatedly.  The source tree is where files
+go to be visible to the Scheme runtime.
+
+The Cache Directory
+-------------------
+
+The package cache is just a flat directory of packages which have been
+downloaded from the remote repositories. It also contains a special file
+'.packages', which contains some ("repository-url" . <packages>) pairs.
+<packages> is simply a list of all the package specifiers to be found in
+the associated repository's package index.
+
+Updating the local package index is done with the 'ucl-update' function,
+or by deleting the local index and attempting to install something.
+
+The Source Directory
+--------------------
+
+The source directory is where files are installed. It also contains a
+'.meta' directory, which contains several bits of important package
+metadata.
+
+.meta/<package>.meta - A sequence of scheme data describing various
+                       features of the installed package, including
+                       installed files, package dependencies, version,
+                       and whether it was explicitly installed by the
+                       user.
+.meta/packages-installed - A list of package symbols, one per line.

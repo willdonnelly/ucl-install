@@ -1,4 +1,4 @@
-!r6rs
+#!r6rs
 (library (ucl install)
   (export ucl-update ucl-install ucl-uninstall)
   (import (rnrs)
