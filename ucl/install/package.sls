@@ -32,9 +32,22 @@
 ;;   Extract the given field from the manifest data
 (define (query-field f d) (cdr (or (assoc f d) (list f))))
 
+;; SAFE-CHAR c
+;;   Return #f if C is one of < > " ' & \ / ;
+(define (safe-char c)
+  (case c
+    ((#\< #\> #\" #\' #\& #\\ #\/ #\;) #f)
+    (else #t)))
+
 ;; PACKAGE-NAME d
-;;   Given a package manifest D, return the name
-(define (package-name d) (car (query-field 'package d)))
+;;   Given a package manifest D, return a sanitized string
+;;   containing the name
+(define (package-name d)
+  (list->string
+    (filter safe-char
+      (string->list
+        (symbol->string
+          (car (query-field 'package d)))))))
 
 ;; PACKAGE-DEPENDS d
 ;;   Return all package dependencies in package manifest D
