@@ -18,7 +18,7 @@
   (for ((dep (package-depends data)))
     (unless (package-installed? dep)
       (unless (equal? dep (package-name data)) ;; prevent infinite loops
-        (display (template "'%' depends on '%'\n" (package-name data) dep))
+        (print "'%' depends on '%'\n" (package-name data) dep)
         (ucl-install* dep #f))))
   (let ((meta (install-package path data)))
     (write-file-data (meta-file (package-name data))
@@ -30,7 +30,7 @@
   (file-exists? (meta-file pkg)))
 
 (define (install-package path data)
-  (display (template "installing package '%'\n" path))
+  (print "installing package '%'\n" path)
   (mkpath (string-append ucl-files "/.meta"))
   (let ((files (package-matching path (query-field 'code data)))
         (symlinks (query-field 'symlink data)))
@@ -40,10 +40,10 @@
           (template "file '%' conflicts with package '%'" file
             (file-owner file)))))
     (for ((file files))
-      (display (template "installing file '%'\n" file))
+      (print "installing file '%'\n" file)
       (package-file path file ucl-files))
     (for ((sym symlinks))
-      (display (template "symlinking '%' to '%'\n" (car sym) (cdr sym)))
+      (print "symlinking '%' to '%'\n" (car sym) (cdr sym))
       (symlink (code-file (car sym)) (code-file (cdr sym))))
     `((files . ,(append files (map cdr symlinks))))))
 
@@ -67,17 +67,17 @@
   (unless (package-installed? pkgname)
     (error 'ucl-uninstall (template "package '%' is not installed\n" pkgname)))
   (for ((rdep (find-rdeps pkgname)))
-    (display (template "'%' depends on '%'\n" rdep pkgname))
+    (print "'%' depends on '%'\n" rdep pkgname)
     ;; avoid recursive issues, however unlikely they are
     (unless (equal? rdep pkgname)
       ;; it could have been removed when we
       ;; uninstalled a prior rdep
       (when (package-installed? rdep)
         (ucl-uninstall rdep))))
-  (display (template "removing '%'\n" pkgname))
+  (print "removing '%'\n" pkgname)
   (let ((data (read-file-data (meta-file pkgname))))
     (for ((file (cdr (assoc 'files data))))
-      (display (template "removing file '%'\n" file))
+      (print "removing file '%'\n" file)
       (delete-file (code-file file))))
   (with-file-data (pkgs-file)
     (curry remove pkgname))

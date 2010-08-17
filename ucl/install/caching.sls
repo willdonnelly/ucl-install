@@ -13,7 +13,7 @@
     (ucl install paths))
 
 (define (repo-packages repo)
-  (display (template "downloading %/.packages.gz\n" repo))
+  (print "downloading %/.packages.gz\n" repo)
   (with-error (template "unable to pull package list from %" repo)
     (let ((text (shell "curl %/.packages.gz | gunzip" repo)))
       (call-with-port (open-string-input-port text) get-data))))
@@ -35,7 +35,7 @@
     (apply string-append (intersperse "." (map number->string vs))))
   (define file (template "%-%.tar.gz" name (dottify version)))
   (unless (file-exists? (cache-file file))
-    (display (template "caching '%/%'\n" repo file))
+    (print "caching '%/%'\n" repo file)
     (with-error (template "error: unable to download '%' from '%'" file repo)
       (shell "curl --create-dirs -o %/% %/%" ucl-cache file repo file)))
   (cache-file file))
