@@ -18,7 +18,7 @@
   (for ((dep (package-depends data)))
     (unless (package-installed? dep)
       (unless (equal? dep (package-name data)) ;; prevent infinite loops
-        (display (print "'%' depends on '%'\n" (package-name data) dep))
+        (display (template "'%' depends on '%'\n" (package-name data) dep))
         (ucl-install* dep #f))))
   (let ((meta (install-package path data)))
     (write-file-data (meta-file (package-name data))
@@ -30,20 +30,20 @@
   (file-exists? (meta-file pkg)))
 
 (define (install-package path data)
-  (display (print "installing package '%'\n" path))
+  (display (template "installing package '%'\n" path))
   (mkpath (string-append ucl-files "/.meta"))
   (let ((files (package-matching path (query-field 'code data)))
         (symlinks (query-field 'symlink data)))
     (for ((file (append files (map cdr symlinks))))
       (when (file-exists? (code-file file))
         (error 'install-package
-          (print "file '%' conflicts with package '%'" file
+          (template "file '%' conflicts with package '%'" file
             (file-owner file)))))
     (for ((file files))
-      (display (print "installing file '%'\n" file))
+      (display (template "installing file '%'\n" file))
       (package-file path file ucl-files))
     (for ((sym symlinks))
-      (display (print "symlinking '%' to '%'\n" (car sym) (cdr sym)))
+      (display (template "symlinking '%' to '%'\n" (car sym) (cdr sym)))
       (symlink (code-file (car sym)) (code-file (cdr sym))))
     `((files . ,(append files (map cdr symlinks))))))
 
@@ -65,19 +65,19 @@
 
 (define (ucl-uninstall pkgname)
   (unless (package-installed? pkgname)
-    (error 'ucl-uninstall (print "package '%' is not installed\n" pkgname)))
+    (error 'ucl-uninstall (template "package '%' is not installed\n" pkgname)))
   (for ((rdep (find-rdeps pkgname)))
-    (display (print "'%' depends on '%'\n" rdep pkgname))
+    (display (template "'%' depends on '%'\n" rdep pkgname))
     ;; avoid recursive issues, however unlikely they are
     (unless (equal? rdep pkgname)
       ;; it could have been removed when we
       ;; uninstalled a prior rdep
       (when (package-installed? rdep)
         (ucl-uninstall rdep))))
-  (display (print "removing '%'\n" pkgname))
+  (display (template "removing '%'\n" pkgname))
   (let ((data (read-file-data (meta-file pkgname))))
     (for ((file (cdr (assoc 'files data))))
-      (display (print "removing file '%'\n" file))
+      (display (template "removing file '%'\n" file))
       (delete-file (code-file file))))
   (with-file-data (pkgs-file)
     (curry remove pkgname))

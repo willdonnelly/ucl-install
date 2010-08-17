@@ -13,8 +13,8 @@
     (ucl install paths))
 
 (define (repo-packages repo)
-  (display (print "downloading %/.packages.gz\n" repo))
-  (with-error (print "unable to pull package list from %" repo)
+  (display (template "downloading %/.packages.gz\n" repo))
+  (with-error (template "unable to pull package list from %" repo)
     (let ((text (shell "curl %/.packages.gz | gunzip" repo)))
       (call-with-port (open-string-input-port text) get-data))))
 
@@ -33,10 +33,10 @@
 (define (cache-from repo name version)
   (define (dottify vs)
     (apply string-append (intersperse "." (map number->string vs))))
-  (define file (print "%-%.tar.gz" name (dottify version)))
+  (define file (template "%-%.tar.gz" name (dottify version)))
   (unless (file-exists? (cache-file file))
-    (display (print "caching '%/%'\n" repo file))
-    (with-error (print "error: unable to download '%' from '%'" file repo)
+    (display (template "caching '%/%'\n" repo file))
+    (with-error (template "error: unable to download '%' from '%'" file repo)
       (shell "curl --create-dirs -o %/% %/%" ucl-cache file repo file)))
   (cache-file file))
 
@@ -48,7 +48,7 @@
 (define (cache-latest spec)
   (define latest (exists (curry latest-version spec) (packages-data)))
   (unless latest
-    (error 'cache-latest (print "no version of '%' in repositories" spec)))
+    (error 'cache-latest (template "no version of '%' in repositories" spec)))
   (cache-from (car latest) (cadr latest) (cddr latest)))
 
 (define (exact-version spec repo-data)
@@ -58,7 +58,8 @@
 (define (cache-specific spec)
   (define repo (exists (curry exact-version spec) (packages-data)))
   (unless repo
-    (error 'cache-specific (print "could not find % in the repositories" spec)))
+    (error 'cache-specific
+      (template "could not find % in the repositories" spec)))
   (cache-from repo (car spec) (cdr spec)))
 
 (define (pkg-cache spec)
