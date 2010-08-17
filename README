@@ -1,8 +1,9 @@
 UCL-Install User Guide
 ======================
 
-UCL-Install provides three functions to the user: 'ucl-update',
-'ucl-install', and 'ucl-uninstall'. The 'ucl-update' function
+The ucl-install utility is provided as a scheme library. It
+provides three functions to the user: 'ucl-update', 'ucl-install',
+and 'ucl-uninstall'.
 
 UCL-UPDATE
 ----------
@@ -29,7 +30,20 @@ removed.
 Currently does not remove any orphaned dependencies, but the information
 exists to do that, so it may be added as an option later on.
 
-
+Example
+-------
+    ;; import the library
+    (import (ucl install))
+    ;; update the package index
+    (ucl-update)
+    ;; install a package from a local file
+    (ucl-install "/home/foo/local-package.tar.gz")
+    ;; install the latest foobar package
+    (ucl-install 'foobar)
+    ;; realise that we'd prefer a different version of foobar
+    (ucl-uninstall 'foobar)
+    ;; install that specific version
+    (ucl-install '(foobar 1 3 2))
 
 UCL Package Format
 ==================
@@ -106,9 +120,6 @@ The entire format has been designed for maximum extensibility, by allowing
 the introduction of new clause and dependency types without causing the
 new manifest data to be invalid in older package managers.
 
-
-
-
 UCL Package Repositories
 ========================
 
@@ -125,9 +136,6 @@ the version is a list of numbers.
 Each package file is stored following the pattern <name>-<version>.tar.gz,
 like 'foobar-1.3.tar.gz' or 'baz-8.1.23.tar.gz'. Versions must consist
 entirely of numbers, at least for the moment.
-
-
-
 
 Directory Structure
 ===================
