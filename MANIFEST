@@ -23,4 +23,4 @@
 
 (depends ucl-prelude ucl-process ucl-environment ucl-filesystem)
 
-(schemes ikarus mosh ypsilon plt larceny)
+(schemes ikarus larceny mosh racket ypsilon)
