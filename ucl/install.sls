@@ -89,5 +89,7 @@
 
 (define (depends-on dep pkgname)
   (define data (read-file-data (meta-file pkgname)))
-  (member dep (cdr (assoc 'depends data))))
+  (let ((depends (assoc 'depends data)))
+    (if (not depends) #f
+        (member dep (cdr depends)))))
 )
