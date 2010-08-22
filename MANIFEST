@@ -19,7 +19,7 @@
 (license BSD3)
 (license-file "LICENSE")
 
-(code "ucl/install.sls" "ucl/install/*.sls")
+(code "ucl/install.sls" "ucl/install/*.sls" "ucl/install/ffi/*.sls")
 
 (depends ucl-prelude ucl-process ucl-environment ucl-filesystem)
 
