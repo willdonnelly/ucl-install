@@ -6,7 +6,7 @@
           query-field package-name package-depends
           package-contents package-matching
           package-file)
-  (import (rnrs) (ucl prelude) (ucl process))
+  (import (rnrs) (ucl prelude) (ucl install ffi archive))
 
 ;; EXTRACT-MANIFEST p
 ;;   Given a package file P, extract the manifest and return it as a
@@ -14,7 +14,7 @@
 (define (extract-manifest p)
   (verify-manifest
     (with-error "error: unable to read manifest, is it malformed?\n"
-      (let ((text (shell "tar -xOf % MANIFEST" p)))
+      (let ((text (archive-file-data p "MANIFEST")))
         (call-with-port (open-string-input-port text) get-data)))))
 
 (define (verify-manifest data)
@@ -48,7 +48,8 @@
 
 ;; PACKAGE-CONTENTS p
 ;;   List all files in package P
-(define (package-contents p) (break-string #\newline (shell "tar -tf %" p)))
+(define (package-contents p)
+  (archive-contents p))
 
 ;; PACKAGE-MATCHING p gs
 ;;   List all files matching the code GS in the package at path P
@@ -57,7 +58,8 @@
 
 ;; PACKAGE-FILE p f d
 ;;   Extract file F from package P to directory D
-(define (package-file p f d) (shell "tar -x -C % -f % %" d p f))
+(define (package-file p f d)
+  (archive-file p f d))
 
 ;; MATCHES-GLOB glob file
 ;;  Returns true only if the given file satisfies the glob
@@ -76,7 +78,7 @@
                (matches-glob (cdr glob) (cdr file))))))
 
 ;; GLOB-EXPAND dir glob
-;;  Expand shell glob GLOB, against files FILES
+;;  Expand glob GLOB, against files FILES
 (define (glob-expand files glob)
   (map list->string
     (filter (curry matches-glob (string->list glob))
