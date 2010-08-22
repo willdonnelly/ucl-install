@@ -14,7 +14,7 @@
 
 (define (repo-packages repo)
   (print "downloading %/.packages.gz\n" repo)
-  (with-error (template "unable to pull package list from %" repo)
+  (replace-error (error 'repo-packages "unable to pull package list" repo)
     (let ((text (shell "curl %/.packages.gz | gunzip" repo)))
       (call-with-port (open-string-input-port text) get-data))))
 
@@ -36,7 +36,7 @@
   (define file (template "%-%.tar.gz" name (dottify version)))
   (unless (file-exists? (cache-file file))
     (print "caching '%/%'\n" repo file)
-    (with-error (template "error: unable to download '%' from '%'" file repo)
+    (replace-error (error 'cache-from "unable to download package" file repo)
       (shell "curl --create-dirs -o %/% %/%" ucl-cache file repo file)))
   (cache-file file))
 

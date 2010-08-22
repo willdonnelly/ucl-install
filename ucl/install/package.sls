@@ -13,16 +13,19 @@
 ;;   Scheme datum
 (define (extract-manifest p)
   (verify-manifest
-    (with-error "error: unable to read manifest, is it malformed?\n"
+    (replace-error (error 'extract-manifest "unable to read manifest" p)
       (let ((text (archive-file-data p "MANIFEST")))
         (call-with-port (open-string-input-port text) get-data)))))
 
 (define (verify-manifest data)
-  (with-error "error: manifest is missing required field 'package'"
+  (replace-error
+    (error 'verify-manifest "manifest is missing required field" 'package)
     (assert (assoc 'package data)))
-  (with-error "error: manifest is missing required field 'version'"
+  (replace-error
+    (error 'verify-manifest "manifest is missing required field" 'version)
     (assert (assoc 'version data)))
-  (with-error "error: manifest field 'package' must be a single symbol"
+  (replace-error
+    (error 'verify-manifest "manifest field 'package' must be a single symbol")
     (begin
       (assert (equal? (length (query-field 'package data)) 1))
       (assert (symbol? (car (query-field 'package data))))))
